@@ -1,0 +1,248 @@
+---
+title: "experimental labels"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    self-contained: true
+    output-file: "labels"
+editor_options: 
+  chunk_output_type: console
+execute: 
+  echo: true
+  message: false
+  warning: false
+---
+
+# Setup
+
+```{r}
+#| label: setup
+
+source("https://inkaverse.com/setup.r")
+```
+
+## Field-book
+
+```{r}
+gs <- "https://docs.google.com/spreadsheets/d/1DIuTcAtxS2N_-sVWCuWYR_yT989PhjCcrho2QoreoIQ/edit?gid=438482976#gid=438482976" %>% 
+  as_sheets_id()
+
+fb <- gs %>% 
+  range_read(ss = .,sheet = "fb")
+
+#> Google fonts: https://fonts.google.com/
+
+font <- c("Merriweather Sans", "Permanent Marker", "Tillana")
+huito_fonts(font)
+```
+
+## Labels 
+3
+
+
+```{r}
+source("https://inkaverse.com/setup.r")
+
+library(tibble)
+library(dplyr)
+library(magick)
+
+# =========================
+# DATOS
+# =========================
+
+fb <- tribble(
+~plots, ~code, ~trt, ~factor1,
+
+"CHACHAPOYAS_2026-05-11_1001_control",1001,"control","control",
+"CHACHAPOYAS_2026-05-11_1002_térmica",1002,"térmica","térmica",
+"CHACHAPOYAS_2026-05-11_1003_térmica",1003,"térmica","térmica",
+"CHACHAPOYAS_2026-05-11_1004_térmica",1004,"térmica","térmica",
+"CHACHAPOYAS_2026-05-11_1005_térmica",1005,"térmica","térmica",
+"CHACHAPOYAS_2026-05-11_1006_control",1006,"control","control",
+"CHACHAPOYAS_2026-05-11_1007_mecánica.(lijado)",1007,"mecánica.(lijado)","mecánica.(lijado)",
+"CHACHAPOYAS_2026-05-11_1008_mecánica.(lijado)",1008,"mecánica.(lijado)","mecánica.(lijado)",
+"CHACHAPOYAS_2026-05-11_1009_mecánica.manual.(bisturí)",1009,"mecánica.manual.(bisturí)","mecánica.manual.(bisturí)",
+"CHACHAPOYAS_2026-05-11_1010_mecánica.manual.(bisturí)",1010,"mecánica.manual.(bisturí)","mecánica.manual.(bisturí)",
+"CHACHAPOYAS_2026-05-11_1011_control",1011,"control","control",
+"CHACHAPOYAS_2026-05-11_1012_mecánica.manual.(bisturí)",1012,"mecánica.manual.(bisturí)","mecánica.manual.(bisturí)",
+"CHACHAPOYAS_2026-05-11_1013_control",1013,"control","control",
+"CHACHAPOYAS_2026-05-11_1014_mecánica.(lijado)",1014,"mecánica.(lijado)","mecánica.(lijado)",
+"CHACHAPOYAS_2026-05-11_1015_mecánica.(lijado)",1015,"mecánica.(lijado)","mecánica.(lijado)",
+"CHACHAPOYAS_2026-05-11_1016_mecánica.manual.(bisturí)",1016,"mecánica.manual.(bisturí)","mecánica.manual.(bisturí)"
+)
+
+# =========================
+# TEXTO ESCARIFICACION
+# =========================
+
+fb$factor1 <- ifelse(
+  fb$factor1 == "control",
+  "Escarificación: Control",
+
+ifelse(
+  fb$factor1 == "térmica",
+  "Escarificación: Térmica",
+
+ifelse(
+  fb$factor1 == "mecánica.(lijado)",
+  "Escarificación: Mecánica (lijado)",
+
+ifelse(
+  fb$factor1 == "mecánica.manual.(bisturí)",
+  "Escarificación:\nMecánica (bisturí)",
+  fb$factor1
+))))
+
+# =========================
+# FUENTES
+# =========================
+
+font <- c(
+  "Merriweather Sans",
+  "Permanent Marker",
+  "Tillana"
+)
+
+huito_fonts(font)
+
+# =========================
+# CARPETA
+# =========================
+
+dir.create("design", showWarnings = FALSE)
+
+# =========================
+# REGLA EXACTA COMO IMAGEN
+# =========================
+
+regla <- image_blank(
+  width = 2200,
+  height = 300,
+  color = "white"
+)
+
+regla <- image_draw(regla)
+
+# BLOQUES DE COLOR
+rect(0,0,440,300,col="#ff2020",border=NA)
+rect(440,0,880,300,col="white",border=NA)
+rect(880,0,1320,300,col="#00b050",border=NA)
+rect(1320,0,1760,300,col="white",border=NA)
+rect(1760,0,2200,300,col="#4040d9",border=NA)
+
+# LINEAS
+for(i in seq(0,2200,by=18)){
+
+  altura <- ifelse(i %% 90 == 0, 250, 120)
+
+  segments(
+    x0 = i,
+    y0 = 300,
+    x1 = i,
+    y1 = 300-altura,
+    lwd = 5,
+    col = ifelse(
+      i < 440 | i > 1760 | (i > 880 & i < 1320),
+      "white",
+      "black"
+    )
+  )
+}
+
+# NUMEROS
+text(220,70,"1",cex=7,col="white",font=2)
+text(660,70,"2",cex=7,col="black",font=2)
+text(1100,70,"3",cex=7,col="white",font=2)
+text(1540,70,"4",cex=7,col="black",font=2)
+text(1980,70,"5",cex=7,col="white",font=2)
+
+# TEXTO CM
+text(110,70,"cm",cex=5,col="white",font=2)
+
+dev.off()
+
+image_write(
+  regla,
+  path = "regla.png",
+  format = "png"
+)
+
+# =========================
+# ETIQUETAS
+# =========================
+
+label <- fb %>%
+  
+  label_layout(
+    size = c(5.2,10),
+    border_color = "forestgreen",
+    border_width = 1.5
+  ) %>%
+  
+  # LOGO UNIVERSIDAD MÁS GRANDE
+
+include_image(
+  value = "img/logo.png",
+  position = c(1.35,9.45),
+  size = c(1.9,1.9)
+) %>%
+  
+  # CODIGO
+  include_text(
+    value = "code",
+    position = c(4.25,9.65),
+    size = 17,
+    color = "black",
+    font = font[3]
+  ) %>%
+  
+  # REGLA SUPERIOR
+  include_image(
+    value = "regla.png",
+    position = c(2.6,8.52),
+    size = c(5.22,1.18)
+  ) %>%
+  
+  # QR
+  include_barcode(
+    value = "plots",
+    size = c(4.45,4.45),
+    position = c(2.6,5.25)
+  ) %>%
+  
+  # TEXTO CENTRADO
+  include_text(
+    value = "factor1",
+    position = c(2.6,1.42),
+    size = 7,
+    color = "blue",
+    font = font[1],
+    hjust = 0.5
+  ) %>%
+  
+  # REGLA INFERIOR
+  include_image(
+    value = "regla.png",
+    position = c(2.6,0.48),
+    size = c(5.22,1.18)
+  )
+
+# =========================
+# EXPORTAR
+# =========================
+
+label %>% 
+  label_print(
+    mode = "complete",
+    filename = paste0(
+      "design/labels_",
+      format(Sys.time(), "%H%M%S")
+    ),
+    paper = c(21,29.7),
+    units = "cm"
+  )
+```
+
