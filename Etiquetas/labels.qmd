@@ -182,13 +182,12 @@ label <- fb %>%
     border_width = 1.5
   ) %>%
   
-  # LOGO UNIVERSIDAD MÁS GRANDE
-
-include_image(
-  value = "img/logo.png",
-  position = c(1.35,9.45),
-  size = c(1.9,1.9)
-) %>%
+  # LOGO UNIVERSIDAD
+  include_image(
+    value = "img/logo.png",
+    position = c(1.35,9.45),
+    size = c(1.9,1.9)
+  ) %>%
   
   # CODIGO
   include_text(
@@ -217,10 +216,9 @@ include_image(
   include_text(
     value = "factor1",
     position = c(2.6,1.42),
-    size = 7,
+    size = 5.8,
     color = "blue",
-    font = font[1],
-    hjust = 0.5
+    font = font[1]
   ) %>%
   
   # REGLA INFERIOR
